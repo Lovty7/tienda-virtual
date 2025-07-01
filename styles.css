@@ -11,7 +11,7 @@ body {
 }
 
 header {
-  background-color: #e0e1eb;
+  background-color: #101daf;
   color: rgba(240, 232, 232, 0.849);
   padding: 100px;
   text-align: center;
@@ -47,7 +47,7 @@ header {
   border-radius: 30px;
   width: 300px;
   text-align: center;
-  box-shadow:0 2px 8px rgb(240, 239, 239);
+  box-shadow:0 2px 8px rgb(179, 7, 7);
 }
 
 .producto img {
@@ -229,4 +229,54 @@ header, .producto, .modal {
   margin-top: 8px;
   cursor: pointer;
 }
+/* Historial como pantalla emergente */
+.modal {
+  display: none;
+  position: fixed;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 600px;
+  background: #fff;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  z-index: 999;
+  padding: 20px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.2);
+}
 
+.modal.abierto {
+  display: block;
+}
+
+.contenido-modal {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.pedido {
+  border: 1px solid #ddd;
+  margin-bottom: 15px;
+  padding: 12px;
+  border-radius: 5px;
+  background: #fdfdfd;
+}
+
+.pedido h3 {
+  margin: 0 0 8px;
+}
+
+.pedido li {
+  margin-bottom: 6px;
+}
+
+.eliminar-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+}

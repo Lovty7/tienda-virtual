@@ -8,6 +8,9 @@ const abrir = document.getElementById('abrir-carrito');
 const cerrar = document.getElementById('cerrar-modal');
 const contenido = document.getElementById('contenido-productos');
 const total = document.getElementById('total-carrito');
+const abrirHistorial = document.getElementById('abrir-historial');
+const cerrarHistorial = document.getElementById('cerrar-historial');
+const modalHistorial = document.getElementById('modal-historial');
 
 // Agregar producto al carrito
 botonesAgregar.forEach(btn => {
@@ -98,7 +101,7 @@ document.getElementById('confirmar').addEventListener('click', () => {
 });
 
 // Mostrar historial
-document.getElementById('ver-historial').addEventListener('click', mostrarHistorialPedidos);
+document.getElementById('abrir-historial').addEventListener('click', mostrarHistorialPedidos);
 
 function mostrarHistorialPedidos() {
   const historial = JSON.parse(localStorage.getItem("pedidos")) || [];
@@ -132,3 +135,12 @@ function eliminarPedido(id) {
   localStorage.setItem("pedidos", JSON.stringify(historialPedidos));
   mostrarHistorialPedidos();
 }
+
+abrirHistorial.addEventListener('click', () => {
+  mostrarHistorialPedidos();
+  modalHistorial.classList.add('abierto');
+});
+
+cerrarHistorial.addEventListener('click', () => {
+  modalHistorial.classList.remove('abierto');
+});

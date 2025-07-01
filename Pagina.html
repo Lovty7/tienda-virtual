@@ -2,12 +2,66 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Lovty Computers</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
+  <style>
+    /* --------- Base --------- */
+    body { font-family: Arial, sans-serif; margin: 0; padding-bottom:50px }
+    header { background:#222; color:#fff; text-align:center; padding:20px }
+    .productos { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; padding:20px }
+    .producto { background:#f2f2f2; padding:15px; width:250px; border-radius:5px; text-align:center }
+    .producto img { max-width:100%; height:auto; margin-bottom:10px }
+    .agregar { background:#0aca2abb; color:#fff; border:none; padding:10px; border-radius:4px; cursor:pointer }
+    .carrito-globo {
+      position:fixed; top:20px; right:20px;
+      background:#28a745; color:#fff; padding:10px 15px;
+      border-radius:30px; cursor:pointer; z-index:10
+    }
 
+    /* --------- Overlay + slide-down --------- */
+    .modal {
+      display:none; position:fixed; top:0; left:0;
+      width:100vw; height:100vh;
+      background:rgba(0,0,0,0.4);
+      backdrop-filter:blur(4px);
+      justify-content:center; align-items:center;
+      z-index:999;
+    }
+    .modal.abierto { display:flex }
+    .contenido-modal {
+      background:#fff; border-radius:8px; padding:20px;
+      width:90%; max-width:500px; max-height:80vh; overflow-y:auto;
+      transform: translateY(-50px);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .modal.abierto .contenido-modal {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Carrito & Historial */
+    .producto-carrito, .pedido {
+      border-bottom:1px solid #ccc; padding:10px 0;
+    }
+    .controles button, .eliminar-btn {
+      margin:0 5px 5px 0; padding:5px 10px;
+      border:none; border-radius:4px; cursor:pointer
+    }
+    .controles button { background:#ddd }
+    .eliminar-btn { background:#e74c3c; color:#fff }
+
+    #abrir-historial {
+      display:block; margin:20px auto;
+      background:#4CAF50; color:#fff;
+      border:none; padding:10px 20px;
+      border-radius:5px; cursor:pointer
+    }
+    footer { text-align:center; padding: 20px; background:#eee }
+  </style>
+</head>
 <body>
+
   <header>
     <h1>Lovty Computers</h1>
     <h3>Las mejores Laptops al mejor precio</h3>
@@ -22,24 +76,26 @@
       <div class="producto">
         <img src="Laptos/asus.jpg" alt="ASUS">
         <h2>Laptop ASUS</h2>
+        <h5>Ram: 8GB<br>Rom: 256GB<br>Procesador:ICORE3<br></h5>
         <p>$300</p>
         <button class="agregar">Agregar al carrito</button>
       </div>
       <div class="producto">
         <img src="Laptos/Medium.jpg" alt="Medium">
-        <h2>Laptop Medium</h2>
-        <p>$500</p>
+        <h2>Laptop Medium</h2><p>$500</p>
+        <h5>Ram: 16GB<br>Rom: 512GB<br>Procesador:ICORE7<br></h5>
         <button class="agregar">Agregar al carrito</button>
       </div>
       <div class="producto">
         <img src="Laptos/OIP.jpg" alt="DELL">
-        <h2>Laptop DELL</h2>
-        <p>$750</p>
+        <h2>Laptop DELL</h2><p>$750</p>
+        <h5>Ram: 32GB<br>Rom: 1T<br>Procesador:ICORE9<br></h5>
         <button class="agregar">Agregar al carrito</button>
       </div>
     </section>
   </main>
 
+  <!-- Modal Carrito -->
   <div id="modal-carrito" class="modal">
     <div class="contenido-modal">
       <h2>Tu carrito</h2>
@@ -50,18 +106,166 @@
     </div>
   </div>
 
-  <section id="historial-pedidos">
-    <h2>🧾 Historial de Pedidos</h2>
-    <button id="ver-historial">📄 Ver historial</button>
-    <div id="contenedor-historial"></div>
-  </section>
-    <section id="historial-pedidos">
-    <h2>🧾 Historial de Pedidos</h2>
-    <button id="ver-historial">📄 Ver historial</button>
-    <div id="contenedor-historial"></div>
-  </section>
+  <!-- Botón + Modal Historial -->
+  <button id="abrir-historial">📄 Ver historial de pedidos</button>
+  <div id="modal-historial" class="modal">
+    <div class="contenido-modal">
+      <h2>🧾 Historial de Pedidos</h2>
+      <div id="contenedor-historial"></div>
+      <button id="cerrar-historial">Cerrar</button>
+    </div>
+  </div>
 
+  <footer>&copy; 2025 Lovty Computers</footer>
 
-  <script src="carrito.js"></script>
+  <script>
+    const carrito = [];
+    let historialPedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+
+    // Elementos comunes
+    const btnAgregar = document.querySelectorAll('.agregar');
+    const contador = document.getElementById('contador-carrito');
+    const modalCarrito = document.getElementById('modal-carrito');
+    const btnAbrirCarrito = document.getElementById('abrir-carrito');
+    const btnCerrarCarrito = document.getElementById('cerrar-modal');
+    const contenidoCarrito = document.getElementById('contenido-productos');
+    const totalCarrito = document.getElementById('total-carrito');
+
+    // Historial
+    const btnAbrirHist = document.getElementById('abrir-historial');
+    const modalHist = document.getElementById('modal-historial');
+    const btnCerrarHist = document.getElementById('cerrar-historial');
+    const contHist = document.getElementById('contenedor-historial');
+
+    // 1. Añadir productos
+    btnAgregar.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const padre = btn.parentElement;
+        const nombre = padre.querySelector('h2').textContent;
+        const precio = parseFloat(padre.querySelector('p').textContent.replace('$',''));
+        const existe = carrito.find(p => p.nombre === nombre);
+        if (existe) existe.cantidad++;
+        else carrito.push({ nombre, precio, cantidad:1 });
+        actualizarContador();
+      });
+    });
+
+    // 2. Abrir/Cerrar carrito
+    btnAbrirCarrito.addEventListener('click', () => {
+      renderCarrito();
+      abrirModal(modalCarrito);
+    });
+    btnCerrarCarrito.addEventListener('click', () => cerrarModal(modalCarrito));
+
+    // 3. Cerrar al hacer clic fuera (carrito e historial)
+    [modalCarrito, modalHist].forEach(modal => {
+      modal.addEventListener('click', e => {
+        if (e.target === modal) cerrarModal(modal);
+      });
+    });
+
+    // 4. Confirmar compra: crear pedido y limpiar carrito
+    document.getElementById('confirmar').addEventListener('click', () => {
+      if (carrito.length === 0) return alert("Carrito vacío");
+      crearPedido();
+      carrito.length = 0;
+      actualizarContador();
+      renderCarrito();
+      alert("¡Pedido creado!");
+    });
+
+    // 5. Abrir/Cerrar historial
+    btnAbrirHist.addEventListener('click', () => {
+      renderHistorial();
+      abrirModal(modalHist);
+    });
+    btnCerrarHist.addEventListener('click', () => cerrarModal(modalHist));
+
+    // --- FUNCIONES MODULARES ---
+
+    // Actualiza contador superior
+    function actualizarContador() {
+      contador.textContent = carrito.reduce((sum,p) => sum + p.cantidad, 0);
+    }
+
+    // Muestra el carrito en el modal
+    function renderCarrito() {
+      contenidoCarrito.innerHTML = '';
+      carrito.forEach((p, i) => {
+        const div = document.createElement('div');
+        div.className = 'producto-carrito';
+        div.innerHTML = `
+          <span>${p.nombre}</span>
+          <div class="controles">
+            <button onclick="cambiarCantidad(${i},-1)">–</button>
+            <span>${p.cantidad}</span>
+            <button onclick="cambiarCantidad(${i},1)">+</button>
+            <button onclick="eliminarCarrito(${i})">🗑️</button>
+          </div>`;
+        contenidoCarrito.appendChild(div);
+      });
+      totalCarrito.textContent = carrito.reduce((sum,p) => sum + p.precio*p.cantidad,0).toFixed(2);
+    }
+
+    // Cambia cantidad en carrito
+    function cambiarCantidad(idx, delta) {
+      carrito[idx].cantidad += delta;
+      if (carrito[idx].cantidad<=0) carrito.splice(idx,1);
+      actualizarContador();
+      renderCarrito();
+    }
+    function eliminarCarrito(idx) {
+      carrito.splice(idx,1);
+      actualizarContador();
+      renderCarrito();
+    }
+
+    // Crear y guardar pedido (modularizado)
+    function crearPedido() {
+      const copia = carrito.map(p => ({ ...p }));
+      const total = copia.reduce((sum,p) => sum + p.precio*p.cantidad,0).toFixed(2);
+      const pedido = {
+        id: historialPedidos.length + 1,
+        fecha: new Date().toLocaleString(),
+        productos: copia,
+        total
+      };
+      historialPedidos.push(pedido);
+      localStorage.setItem("pedidos", JSON.stringify(historialPedidos));
+    }
+
+    // Renderiza historial en modal
+    function renderHistorial() {
+      contHist.innerHTML = '';
+      if (!historialPedidos.length) {
+        contHist.innerHTML = '<p>No hay pedidos.</p>';
+        return;
+      }
+      historialPedidos
+        .sort((a,b)=> a.id - b.id)
+        .forEach(p => {
+          const div = document.createElement('div');
+          div.className = 'pedido';
+          div.innerHTML = `
+            <h3>Pedido #${p.id} – ${p.fecha}</h3>
+            <ul>${p.productos.map(x=>`<li>${x.nombre} ×${x.cantidad} – $${x.precio}</li>`).join('')}</ul>
+            <strong>Total: $${p.total}</strong>
+            <button class="eliminar-btn" onclick="eliminarPedido(${p.id})">Eliminar</button>`;
+          contHist.appendChild(div);
+        });
+    }
+
+    // Elimina pedido por ID
+    function eliminarPedido(id) {
+      historialPedidos = historialPedidos.filter(p=>p.id!==id);
+      localStorage.setItem("pedidos", JSON.stringify(historialPedidos));
+      renderHistorial();
+    }
+
+    // Abre un modal
+    function abrirModal(m) { m.classList.add('abierto') }
+    // Cierra un modal
+    function cerrarModal(m) { m.classList.remove('abierto') }
+  </script>
 </body>
 </html>
