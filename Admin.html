@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="admin.css" />
+  <title>Admin · Mi Tienda Virtual</title>
+</head>
+<body>
+  <header>
+    <a href="Pagina.html"><h2>Mi Tienda Virtual</h2></a>
+  </header>
+
+  <main style="flex: 1; padding: 2rem;">
+    <div class="panel-botones">
+      <button id="btnAbrirModal" class="btn-confirmar">➕ Agregar producto</button>
+      <button id="verStock" class="btn-confirmar">📦 Ver Stock</button>
+      <button id="abrir-historial" class="btn-confirmar">📄 Ver Historial</button>
+    </div>
+  </main>
+
+  <!-- Modal Historial -->
+  <div id="modal-historial" class="modal">
+    <div class="modal-contenido">
+      <header class="modal-header">
+        <span id="cerrar-historial" class="modal-cerrar">&times;</span>
+        <h3>🧾 Historial de Pedidos</h3>
+      </header>
+      <div class="modal-body" id="contenedor-historial"></div>
+      <footer class="modal-footer">
+        <button class="btn-confirmar" id="cerrarFooterHistorial">Cerrar</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Modal Agregar Producto -->
+  <div id="modalAgregar" class="modal">
+    <div class="modal-contenido">
+      <header class="modal-header">
+        <span id="btnCerrarModal" class="modal-cerrar">&times;</span>
+        <h3>Nuevo producto</h3>
+      </header>
+      <div class="modal-body">
+        <form id="formAgregarProducto">
+          <div class="form-group">
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre" required />
+          </div>
+          <div class="form-group">
+            <label for="detalle">Detalle</label>
+            <textarea id="detalle" rows="3" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="precio">Precio</label>
+            <input type="number" id="precio" step="0.01" required />
+          </div>
+          <div class="form-group">
+            <label for="imagen">Imagen</label>
+            <input type="file" id="imagen" accept="image/*" required />
+          </div>
+          <button type="submit" class="btn-confirmar">Confirmar</button>
+        </form>
+      </div>
+      <footer class="modal-footer">
+        <button id="btnCerrarFooter" class="btn-confirmar">Cerrar</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Modal Ver Stock -->
+  <div id="modalStock" class="modal">
+    <div class="modal-contenido">
+      <header class="modal-header">
+        <span id="cerrarStock" class="modal-cerrar">&times;</span>
+        <h3>📦 Inventario disponible</h3>
+      </header>
+      <div class="modal-body" id="contenidoStock"></div>
+      <footer class="modal-footer">
+        <button class="btn-confirmar" id="cerrarFooterStock">Cerrar</button>
+      </footer>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 Mi Tienda Virtual</p>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/carrito.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
